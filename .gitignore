@@ -1,0 +1,6 @@
+Kafka-Test/target/
+Kafka-Test/bin/
+Kafka-Test/.project
+Kafka-Test/.classpath
+Kafka-Test/.settings/
+kafka_test.pem
