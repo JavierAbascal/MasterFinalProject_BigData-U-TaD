@@ -27,8 +27,9 @@ public class Producer extends Thread
     int messageNo = 1;
     while(true)
     {
-      String messageStr = new String("Message_" + messageNo);
+      String messageStr = new String("This is a test Message_" + messageNo);
       producer.send(new KeyedMessage<Integer, String>(topic, messageStr));
+      System.out.println(messageStr);
       messageNo++;
       try {
         Thread.sleep(1000);

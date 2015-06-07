@@ -14,6 +14,7 @@ object TestSparkStreamingWordCountNetcat {
       System.exit(1)
     }
 
+    // I am not sure what is this for... (doesn't work in my mode)
     //StreamingExamples.setStreamingLogLevels()
 
     // Create the context with a 1 second batch size

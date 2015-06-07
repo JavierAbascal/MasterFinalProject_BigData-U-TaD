@@ -10,8 +10,9 @@ public class KafkaConsumerProducerDemo implements KafkaProperties
     Producer producerThread = new Producer(KafkaProperties.topic);
     producerThread.start();
     
+    /*
     Consumer consumerThread = new Consumer(KafkaProperties.topic);
     consumerThread.start();
-    
+    */
   }
 }
