@@ -36,12 +36,6 @@ public class Consumer extends Thread
     Map<String, List<KafkaStream<byte[], byte[]>>> consumerMap = consumer.createMessageStreams(topicCountMap);
     KafkaStream<byte[], byte[]> stream =  consumerMap.get(topic).get(0);
     ConsumerIterator<byte[], byte[]> it = stream.iterator();
-    try {
-      Thread.sleep(5);
-    } catch (InterruptedException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
     while(it.hasNext())
       System.out.println(new String(it.next().message()));
   }
