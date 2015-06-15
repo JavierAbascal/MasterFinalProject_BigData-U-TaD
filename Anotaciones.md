@@ -1,6 +1,8 @@
 # KAFKA #
 
 - Se necesita Zookeper, investigar como crear un nodo que no sea "quick-and-dirty single-node zookeeper instance"
+- Lanzar zookeper
+- Lanzar Kafka server
 
 
 ## Cosas: ##
@@ -17,4 +19,9 @@
 - Spark funciona bien en intellij pero las librerías tardan en descargarse un cojón y medio hahaha
 - Bajarse el plugin de Scala y SBT (que es como un maven)
 - "Local mode" hay que ponerlo  el código
-- 
+
+
+## WebService GlasFish Java ##
+
+- Es importante exportar las librerías de MAVEN a WEB-INF/lib (en propierties mirar el Deployment Assembler TT)
+- Escribir bien el web.xml

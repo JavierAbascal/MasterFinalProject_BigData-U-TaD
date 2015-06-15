@@ -4,3 +4,13 @@ Kafka-Test/.project
 Kafka-Test/.classpath
 Kafka-Test/.settings/
 kafka_test.pem
+Spark-Test/.idea/
+Spark-Test/project/project/
+Spark-Test/project/target/
+Spark-Test/target/
+WS-FileUpload/.classpath
+WS-FileUpload/.project
+WS-FileUpload/.settings/
+RESTWebservice/.classpath
+RESTWebservice/.project
+RESTWebservice/.settings/
