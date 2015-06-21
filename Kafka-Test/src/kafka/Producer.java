@@ -31,11 +31,6 @@ public class Producer extends Thread
       producer.send(new KeyedMessage<Integer, String>(topic, messageStr));
       System.out.println(messageStr);
       messageNo++;
-      try {
-        Thread.sleep(1000);
-      } catch (InterruptedException e) {
-        e.printStackTrace();
-      }
     }
   }
 }

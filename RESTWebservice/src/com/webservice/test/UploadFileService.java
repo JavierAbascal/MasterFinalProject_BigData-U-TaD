@@ -45,18 +45,20 @@ public class UploadFileService implements KafkaProperties{
     if (resSaveFile == false)
       return Response.status(500).entity("ERROR uploading file").build();
     
+    // Thread to process the file and send it to Kafka
+    Thread ThreadWriteToKafka = new Thread(new WriteToKafka(uploadedFileLocation));
+    ThreadWriteToKafka.start();
+    
+    // File received successfully
+    String output = "File uploaded to : " + uploadedFileLocation;
+    return Response.status(200).entity(output).build();
+    
+    /*
     // decompress the file,open the file and send line by line to KafkaServer
     boolean resKafka = writeToKafka(uploadedFileLocation, KafkaProperties.topic);
     if (resKafka == false)
       return Response.status(501).entity("ERROR sending to Kafka-Server").build();
-    
-    
-    
-    String output = "File uploaded to : " + uploadedFileLocation;
-    return Response.status(200).entity(output).build();
-
-    // delete the file
- 
+    */
   }
   
   // save uploaded file to new location
@@ -83,29 +85,6 @@ public class UploadFileService implements KafkaProperties{
       e.printStackTrace();
       return false;
     }
-  }
-    
-  
-  // decompress the file,open the file and send line by line to KafkaServer
-  //////////////////////////////////////////////////////////////////////////////
-  private boolean writeToKafka(String uploadedFileLocation, String topic) throws FileNotFoundException, IOException{
-  //////////////////////////////////////////////////////////////////////////////
-    
-    KafkaProducer kafkaproducer= new KafkaProducer(topic);
-    try (BufferedReader br = new BufferedReader(new FileReader(uploadedFileLocation))) {
-      String line;
-      while ((line = br.readLine()) != null) {
-         kafkaproducer.sendToKafka(line);
-      }
-      br.close();
-    } 
-    catch(Exception e)
-    {
-      e.getMessage();
-      return false;
-    }
-    
-    return true;
   }
   
   
