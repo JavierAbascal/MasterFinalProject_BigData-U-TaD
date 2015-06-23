@@ -10,6 +10,9 @@ libraryDependencies += "org.apache.spark" % "spark-streaming_2.10" % "1.3.1"
 
 libraryDependencies += "org.apache.spark" % "spark-streaming-kafka_2.10" % "1.3.1"
 
-//libraryDependencies += "org.apache.hadoop" % "hadoop-core" % "1.2.0"
+libraryDependencies += "org.apache.hadoop" % "hadoop-hdfs" % "2.7.0"
+
+libraryDependencies += "org.apache.hadoop" % "hadoop-core" % "1.2.1"
+
 
 
