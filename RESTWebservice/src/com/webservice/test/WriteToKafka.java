@@ -36,6 +36,7 @@ public class WriteToKafka implements Runnable {
     }
     long tReadFile = System.nanoTime();
     
+    // Try it without creating a new kafkaProducer each time
     for(int i = 0; i < lines.size(); i++){
       KafkaProducer kafkaProducer = new KafkaProducer(lines.get(i));
       executor.execute(kafkaProducer);
@@ -53,6 +54,8 @@ public class WriteToKafka implements Runnable {
                   "  SendKafka Time:  "+(tSendKafka - tReadFile)*1.0e-9);
     
     new File(fileLocation).delete();
+    
+    return;
   }
 
 }
