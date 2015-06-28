@@ -1,7 +1,8 @@
+package com.tests
 
 import org.apache.spark.SparkConf
-import org.apache.spark.streaming.{Seconds, StreamingContext}
 import org.apache.spark.storage.StorageLevel
+import org.apache.spark.streaming.{Seconds, StreamingContext}
 
 object TestSparkStreamingWordCountNetcat {
 

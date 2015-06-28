@@ -25,3 +25,9 @@
 
 - Es importante exportar las librerías de MAVEN a WEB-INF/lib (en propierties mirar el Deployment Assembler TT)
 - Escribir bien el web.xml
+
+
+## Curl instruction ##
+
+curl -F "file=@prueba.txt" http://localhost:8080
+/RESTWebservice/rest/file/upload?token=c512623ef8144b3862f19739ccc9fd03
