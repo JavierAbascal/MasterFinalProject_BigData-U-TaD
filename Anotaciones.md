@@ -26,8 +26,33 @@
 - Es importante exportar las librerías de MAVEN a WEB-INF/lib (en propierties mirar el Deployment Assembler TT)
 - Escribir bien el web.xml
 
+Aquí se sube el WAR
+/usr/share/tomcat8/webapps/
+
+Aquí se mira los logs 
+/usr/share/tomcat8/logs
+
+CircleCI.com para autodespliegue
+
 
 ## Curl instruction ##
 
-curl -F "file=@prueba.txt" http://localhost:8080
-/RESTWebservice/rest/file/upload?token=c512623ef8144b3862f19739ccc9fd03
+curl -F "file=@prueba.txt" http://52.18.1.37:8080/RESTWebservice/rest/file/upload?token=c512623ef8144b3862f19739ccc9fd03
+
+Aquí se sube el WAR
+/usr/share/tomcat8/webapps/
+
+Aquí se mira los logs 
+/usr/share/tomcat8/logs
+
+
+## InfluxDB + Grafana##
+
+
+$ sudo service grafana-server start
+$ sudo service influxdb start
+
+o
+
+Iniciar en /etc/init.d/influxdb
+

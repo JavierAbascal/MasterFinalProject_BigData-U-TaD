@@ -38,12 +38,19 @@ public class UploadFileService implements KafkaProperties{
     if (!token.equals("c512623ef8144b3862f19739ccc9fd03"))
       return Response.status(401).entity("Token not valid").build();
     
-    String uploadedFileLocation = "C:\\work\\Otros\\DatosRouter\\Upload\\" + fileDetail.getFileName();
+    // Windows
+    //String uploadedFileLocation = "C:\\work\\Otros\\DatosRouter\\Upload\\" + fileDetail.getFileName();
+    
+    // Amazon
+    String uploadedFileLocation = "/tmp/" + fileDetail.getFileName();
  
     // save the file
     boolean resSaveFile = writeToFile(uploadedInputStream, uploadedFileLocation);
-    if (resSaveFile == false)
+    if (resSaveFile == false) {
+      System.out.println("ERROR uploading file");
       return Response.status(500).entity("ERROR uploading file").build();
+    }
+      
     
     // Thread to process the file and send it to Kafka
     Thread ThreadWriteToKafka = new Thread(new WriteToKafka(uploadedFileLocation));
@@ -51,6 +58,7 @@ public class UploadFileService implements KafkaProperties{
     
     // File received successfully
     String output = "File uploaded to : " + uploadedFileLocation;
+    System.out.println(output);
     return Response.status(200).entity(output).build();
     
     /*
