@@ -37,7 +37,11 @@ CircleCI.com para autodespliegue
 
 ## Curl instruction ##
 
+
+
 curl -F "file=@prueba.txt" http://52.18.1.37:8080/RESTWebservice/rest/file/upload?token=c512623ef8144b3862f19739ccc9fd03
+
+curl -F "file=@prueba.txt" http://localhost:8080/RESTWebservice/rest/file/upload?token=c512623ef8144b3862f19739ccc9fd03
 
 Aquí se sube el WAR
 /usr/share/tomcat8/webapps/
@@ -56,3 +60,17 @@ o
 
 Iniciar en /etc/init.d/influxdb
 
+### SPARK STREAMNG ###
+
+descargar scala y export al path
+descargar spark 
+
+sbin/start-master.sh
+sbin/start-slave.sh worker_1 sparkURI
+
+./sbin/start-master.sh -c 1 -m 1G
+./sbin/start-slave.sh Worker_1 spark://ip-172-31-37-185:7077 -c 1 -m 1G
+./sbin/start-slave.sh Worker_2 spark://ip-172-31-37-185:7077 -c 1 -m 1G
+./sbin/start-slave.sh Worker_3 spark://ip-172-31-37-185:7077 -c 1 -m 1G
+
+./bin/spark-submit --class ProbeRequestStreaming --master spark://ip-172-31-37-185:7077 --deploy-mode client /home/ubuntu/spark-test.jar

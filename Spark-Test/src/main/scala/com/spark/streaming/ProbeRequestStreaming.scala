@@ -1,11 +1,13 @@
 package com.spark.streaming
 
-import java.sql.Timestamp
+import java.sql.{Date, Timestamp}
 import java.text.SimpleDateFormat
-import java.util.Calendar
+import java.util
+import java.util.{Arrays, Calendar}
 
 import com.spark.InfluxAPI.Client
 import com.spark.InfluxAPI.Series
+import com.spark.javaemail.SendMail
 import com.spark.InfluxAPI.SeriesMap
 import com.spark.InfluxAPI.response
 import com.spark.InfluxAPI.error
@@ -30,7 +32,7 @@ object ProbeRequestStreaming {
   /////////////////////////////////////////////////////////////////////////
   private var client: Client = null
 
-  final val DB_NAME               = "Master_BigData"
+  final val DB_NAME               = "FILL_IT"
   final val DB_USER               = "FILL_IT"
   final val DB_PASSWORD           = "FILL_IT"
   final val CLUSTER_ADMIN_USER    = "FILL_IT"
@@ -45,19 +47,26 @@ object ProbeRequestStreaming {
   /////////////////////////////////////////////////////////////////////////
   // Alerts Configuration
   /////////////////////////////////////////////////////////////////////////
-  final val JAVI_MAC  = "2C:54:CF:FF:12:6A"
-  final val MIGUE_MAC = "AA:AA:AA:AA:AA:AA:AA"
-  final val DAVID_MAC = "BB:BB:BB:BB:BB:BB:BB"
+  final val JAVI_MAC  = "FILL_IT"
+  final val MIGUE_MAC = "FILL_IT"
+  final val DAVID_MAC = "FILL_IT"
   var JaviLastTimeSeen  = Timestamp.valueOf("2015-01-01 00:00:00").getTime
   var MigueLastTimeSeen = Timestamp.valueOf("2015-01-01 00:00:00").getTime
   var DavidLastTimeSeen = Timestamp.valueOf("2015-01-01 00:00:00").getTime
+
+  /////////////////////////////////////////////////////////////////////////
+  // Gmail Configuration
+  /////////////////////////////////////////////////////////////////////////
+  final val HOST = "FILL_IT"
+  final val SSL_PORT = "FILL_IT"
+  final val USERNAME = "FILL_IT"
+  final val PASSWORD = "FILL_IT"
 
   /////////////////////////////////////////////////////////////////////////
   // CASE CLASS for probeRequest
   /////////////////////////////////////////////////////////////////////////
   case class ProbeRequest(id_counter: Integer, co_mac: String, ts_timestamp: Long, qt_rssi: Integer,
                           co_BSSID: String, co_SSID: String)
-
 
 
 
@@ -77,11 +86,16 @@ object ProbeRequestStreaming {
       .setMaster("local[*]")
       .set("spark.driver.allowMultipleContexts","true")
 
-    // New Checkpoints for debugging
-    val random = new Random().nextString(10)
-    val checkpointDirectory = "FILL_IT/u-tad_finalproject/" +"SparkStreaming_CheckpointDirectory/"+random+"/"
+    // New Random Checkpoints for debugging
+    // val random = new Random().nextString(10)
+    val checkpointDirectory = "s3n://FILL_IT/u-tad_finalproject/" +"SparkStreaming_CheckpointDirectory/"+"MasterBigData"+"/"
 
     val sc  = new SparkContext(sparkConf)
+    // S3 File System Connector  (s3n)
+    sc.hadoopConfiguration.set("fs.s3n.impl", "org.apache.hadoop.fs.s3native.NativeS3FileSystem")
+    sc.hadoopConfiguration.set("fs.s3.awsAccessKeyId","FILL_IT")
+    sc.hadoopConfiguration.set("fs.s3.awsSecretAccessKey","FILL_IT")
+
     val ssc = StreamingContext.getOrCreate(checkpointDirectory,
       () => {
         functionToCreateContext(KAFKA_BROKERS,KAFKA_TOPICS,checkpointDirectory,sparkConf,sc)
@@ -100,11 +114,6 @@ object ProbeRequestStreaming {
     val ssc = new StreamingContext(sparkConf, Seconds(30))
     ssc.remember(Seconds(30))
 
-    // S3 File System Connector  (s3n)
-    val hadoopConf = ssc.sparkContext.hadoopConfiguration
-    hadoopConf.set("fs.s3n.impl", "org.apache.hadoop.fs.s3native.NativeS3FileSystem")
-    hadoopConf.set("fs.s3n.awsAccessKeyId","FILL_IT")
-    hadoopConf.set("fs.s3n.awsSecretAccessKey","FILL_IT")
 
     /*
     // S3OutputPath and CheckpointDirectory
@@ -198,47 +207,74 @@ object ProbeRequestStreaming {
   }
 
   
-  
   /////////////////////////////////////////////////////////////////////////
   def checkMACAlerts(row:Row) : Unit = {
   /////////////////////////////////////////////////////////////////////////
-    if(row.getString(0).contains(JAVI_MAC) && row.getLong(1)-JaviLastTimeSeen > 1200000)
-    {
-      //Send EMAIL
-      println("WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW \n \n")
-      println("SENDING EMAIL TO JAVIER")
-      println("WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW \n \n")
-      JaviLastTimeSeen = row.getLong(1)
+    if(row.getString(0).contains(JAVI_MAC)) {
+      if(row.getLong(1)-JaviLastTimeSeen > 1200000) {  //20 minutes
+        //Send EMAIL
+        println("SENDING EMAIL TO JAVIER")
+        val Time = new Date(row.getLong(1))
+        val df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss")
+        val currentTime = df.format(Time)
+
+        sendEmail("Javier Abascal Carrasco", currentTime)
+        JaviLastTimeSeen = row.getLong(1)
+      } else {
+        JaviLastTimeSeen = row.getLong(1)
+      }
     }
-    else if(row.getString(0).contains(MIGUE_MAC) && row.getLong(1)-MigueLastTimeSeen > 1200000)
-    {
-      //Send EMAIL
-      println("WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW \n \n")
-      println("SENDING EMAIL TO MIGUE")
-      println("WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW \n \n")
-      MigueLastTimeSeen = row.getLong(1)
+    else if(row.getString(0).contains(MIGUE_MAC)) {
+      if(row.getLong(1)-MigueLastTimeSeen > 1200000) {  //20 minutes
+        //Send EMAIL
+        println("SENDING EMAIL TO MIGUE")
+        val Time = new Date(row.getLong(1))
+        val df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss")
+        val currentTime = df.format(Time)
+
+        sendEmail("Miguel Angel Amo", currentTime)
+        MigueLastTimeSeen = row.getLong(1)
+      } else {
+        MigueLastTimeSeen = row.getLong(1)
+      }
     }
-    else if(row.getString(0).contains(DAVID_MAC) && row.getLong(1)-DavidLastTimeSeen > 1200000)
-    {
-      //Send EMAIL
-      println("WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW \n \n")
-      println("SENDING EMAIL TO DAVID")
-      println("WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW \n \n")
-      DavidLastTimeSeen = row.getLong(1)
+    else if(row.getString(0).contains(DAVID_MAC)) {
+      if(row.getLong(1)-DavidLastTimeSeen > 1200000) {  //20 minutes
+        //Send EMAIL
+        println("SENDING EMAIL TO DAVID")
+        val Time = new Date(row.getLong(1))
+        val df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss")
+        val currentTime = df.format(Time)
+
+        sendEmail("David Suarez", currentTime)
+        DavidLastTimeSeen = row.getLong(1)
+      } else {
+        DavidLastTimeSeen = row.getLong(1)
+      }
     }
     else
     {
       //Nothing TOSEND
-      println("WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW \n \n")
       println("NO ONE IS NEW AT HOME")
-      println("WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW \n \n")
-    }  
+    }
   }
 
   /////////////////////////////////////////////////////////////////////////
-  def sendEmail( email:String, person_who_has_arrived:String) : Unit = {
-    /////////////////////////////////////////////////////////////////////////
-    
+  def sendEmail(person_who_has_arrived:String , currentTime:String) : Unit = {
+  /////////////////////////////////////////////////////////////////////////
+
+    // From
+    val from = "RaspbberyPi2_Sensor"
+    // To
+    val to = Arrays.asList("javier.abascal@hotmail.com","davsuacar@gmail.com","a_mi_no_mestafes@hotmail.com")
+    // Subject
+    val subject = "New FlatMate at Home"
+    // Body
+    val body = person_who_has_arrived + " hast arrived at " + currentTime
+    // Nothing to attach
+    val lFiles = new util.ArrayList[String]
+
+    new SendMail(HOST,SSL_PORT,USERNAME,PASSWORD).sendEmail(from,to,subject,body,lFiles)
   }
 
 }
