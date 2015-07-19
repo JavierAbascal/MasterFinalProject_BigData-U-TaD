@@ -57,16 +57,10 @@ public class UploadFileService implements KafkaProperties{
     ThreadWriteToKafka.start();
     
     // File received successfully
-    String output = "File uploaded to : " + uploadedFileLocation;
+    String output = "File uploaded correctly to : " + uploadedFileLocation + "\n";
     System.out.println(output);
     return Response.status(200).entity(output).build();
     
-    /*
-    // decompress the file,open the file and send line by line to KafkaServer
-    boolean resKafka = writeToKafka(uploadedFileLocation, KafkaProperties.topic);
-    if (resKafka == false)
-      return Response.status(501).entity("ERROR sending to Kafka-Server").build();
-    */
   }
   
   // save uploaded file to new location

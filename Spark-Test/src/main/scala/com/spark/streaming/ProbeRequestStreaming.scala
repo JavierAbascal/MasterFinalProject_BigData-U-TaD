@@ -17,7 +17,6 @@ import org.apache.spark.streaming.kafka.KafkaUtils
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 import org.apache.spark.{SparkContext, SparkConf}
 
-
 import scala.util.Random
 import scala.collection.mutable.ArrayBuffer
 
@@ -32,24 +31,24 @@ object ProbeRequestStreaming {
   /////////////////////////////////////////////////////////////////////////
   private var client: Client = null
 
-  final val DB_NAME               = "FILL_IT"
-  final val DB_USER               = "FILL_IT"
-  final val DB_PASSWORD           = "FILL_IT"
-  final val CLUSTER_ADMIN_USER    = "FILL_IT"
-  final val CLUSTER_ADMIN_PASS    = "FILL_IT"
+  final val DB_NAME               = "Master_BigData"
+  final val DB_USER               = "magictaly"
+  final val DB_PASSWORD           = "19405203"
+  final val CLUSTER_ADMIN_USER    = "magictaly"
+  final val CLUSTER_ADMIN_PASS    = "19405203"
 
   /////////////////////////////////////////////////////////////////////////
   // Kafka Configuration
   /////////////////////////////////////////////////////////////////////////
-  final val KAFKA_BROKERS = "FILL_IT"
-  final val KAFKA_TOPICS  = "FILL_IT"
+  final val KAFKA_BROKERS = "52.18.14.198:9092"
+  final val KAFKA_TOPICS  = "kafkaPrueba"
   
   /////////////////////////////////////////////////////////////////////////
   // Alerts Configuration
   /////////////////////////////////////////////////////////////////////////
-  final val JAVI_MAC  = "FILL_IT"
-  final val MIGUE_MAC = "FILL_IT"
-  final val DAVID_MAC = "FILL_IT"
+  final val JAVI_MAC  = "2C:54:CF:FF:12:6A"
+  final val MIGUE_MAC = "A4:5E:60:AF:BC:7F"
+  final val DAVID_MAC = "BC:F5:AC:F4:C0:66"
   var JaviLastTimeSeen  = Timestamp.valueOf("2015-01-01 00:00:00").getTime
   var MigueLastTimeSeen = Timestamp.valueOf("2015-01-01 00:00:00").getTime
   var DavidLastTimeSeen = Timestamp.valueOf("2015-01-01 00:00:00").getTime
@@ -57,10 +56,10 @@ object ProbeRequestStreaming {
   /////////////////////////////////////////////////////////////////////////
   // Gmail Configuration
   /////////////////////////////////////////////////////////////////////////
-  final val HOST = "FILL_IT"
-  final val SSL_PORT = "FILL_IT"
-  final val USERNAME = "FILL_IT"
-  final val PASSWORD = "FILL_IT"
+  final val HOST = "smtp.gmail.com"
+  final val SSL_PORT = "465"
+  final val USERNAME = "RaspberryPi2.Sensor.System@gmail.com"
+  final val PASSWORD = "lacasadeDJM"
 
   /////////////////////////////////////////////////////////////////////////
   // CASE CLASS for probeRequest
@@ -68,7 +67,11 @@ object ProbeRequestStreaming {
   case class ProbeRequest(id_counter: Integer, co_mac: String, ts_timestamp: Long, qt_rssi: Integer,
                           co_BSSID: String, co_SSID: String)
 
-
+  /////////////////////////////////////////////////////////////////////////
+  // AWS Configuration
+  /////////////////////////////////////////////////////////////////////////
+  final val AWSACCESSKEYID = "FILL IT"
+  final val AWSSECRETACCESSKEY = "FILL IT"
 
 
   /////////////////////////////////////////////////////////////////////////
@@ -88,13 +91,17 @@ object ProbeRequestStreaming {
 
     // New Random Checkpoints for debugging
     // val random = new Random().nextString(10)
-    val checkpointDirectory = "s3n://FILL_IT/u-tad_finalproject/" +"SparkStreaming_CheckpointDirectory/"+"MasterBigData"+"/"
+    //val checkpointDirectory = "s3n://"+AWSACCESSKEYID+":"+AWSSECRETACCESSKEY+"@javier-abascal/u-tad_finalproject/" +"SparkStreaming_CheckpointDirectory/"+"MasterBigData"+"/"
+
+    val checkpointDirectory = "/tmp/spark_checkpointDirectory/"
 
     val sc  = new SparkContext(sparkConf)
+
     // S3 File System Connector  (s3n)
-    sc.hadoopConfiguration.set("fs.s3n.impl", "org.apache.hadoop.fs.s3native.NativeS3FileSystem")
-    sc.hadoopConfiguration.set("fs.s3.awsAccessKeyId","FILL_IT")
-    sc.hadoopConfiguration.set("fs.s3.awsSecretAccessKey","FILL_IT")
+    //val hadoopConfiguration = sc.hadoopConfiguration
+    //hadoopConfiguration.set("fs.s3n.impl", "org.apache.hadoop.fs.s3native.NativeS3FileSystem")
+    //hadoopConfiguration.set("fs.s3.awsAccessKeyId",AWSACCESSKEYID)
+    //hadoopConfiguration.set("fs.s3.awsSecretAccessKey",AWSSECRETACCESSKEY)
 
     val ssc = StreamingContext.getOrCreate(checkpointDirectory,
       () => {
@@ -111,8 +118,8 @@ object ProbeRequestStreaming {
     println("Creating new Context")
 
     // Spark Streaming Context
-    val ssc = new StreamingContext(sparkConf, Seconds(30))
-    ssc.remember(Seconds(30))
+    val ssc = new StreamingContext(sparkConf, Seconds(20))
+    ssc.remember(Seconds(20))
 
 
     /*
@@ -156,13 +163,23 @@ object ProbeRequestStreaming {
         "  max(qt_rssi) as qt_rssi, " +
         "  count(*)     as qt_tracks " +
         "FROM probes " +
-        "GROUP BY id_counter,co_mac,ts_timestamp")
+        "GROUP BY id_counter,co_mac,ts_timestamp"
+      )
 
       // Insert Data grouped by Second into an Array[Array[Any] -- For InfluxDB
       val influxData = new ArrayBuffer[Array[Any]]()
       probesGroupbySecond.collect().foreach(row =>
         // id_counter, co_mac, ts_timestamp(Long), qt_rssi, qt_tracks
         influxData += Array(row.getInt(0),row(1).toString,row.getLong(2),row.getInt(3),row.getLong(4)))
+
+      //Traza de lo recibido
+      //println("\n\nWWWWWWWWWWWWWWWWWWWWWWWWWWWW TRAZA DE LO RECIBIDO")
+      //probesGroupbySecond.collect().foreach(println)
+
+      //Array de lo guardado en influxData
+      //println("\n\nWWWWWWWWWWWWWWWWWWWWWWWWWWWW INFLUXDATA")
+      //println(influxData.toArray.deep.mkString("\n"))
+
 
       // Use of InfluxDB API to insert influxData
       sendDataToInfluxDB(influxData.toArray)
@@ -177,6 +194,10 @@ object ProbeRequestStreaming {
         "GROUP BY co_mac"
       )
 
+      //Traza de la Query
+      //println("\n\nWWWWWWWWWWWWWWWWWWWWWWWWWWWW distinctMAC")
+      //distinctMac.collect().foreach(println)
+
       //Check MACs Alerts
       distinctMac.collect().foreach(row => checkMACAlerts(row))
       
@@ -188,25 +209,22 @@ object ProbeRequestStreaming {
     ssc
   }
 
-
-  
-  
-
   /////////////////////////////////////////////////////////////////////////
   def sendDataToInfluxDB(influxData : Array[Array[Any]] ) : Unit = {
   /////////////////////////////////////////////////////////////////////////  
     client = new Client()
     client.database = DB_NAME
 
-    val track_second = Series("track_second",
+    val track_second = Series("track_seconds",
       Array("id_counter", "co_mac", "time", "qt_rssi", "qt_tracks"),influxData
     )
+
+    //client.writeSeries(Array(track_second))
     assert(None == client.writeSeries(Array(track_second)))
 
     client.close()
   }
 
-  
   /////////////////////////////////////////////////////////////////////////
   def checkMACAlerts(row:Row) : Unit = {
   /////////////////////////////////////////////////////////////////////////
@@ -255,7 +273,12 @@ object ProbeRequestStreaming {
     else
     {
       //Nothing TOSEND
+      val df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss")
       println("NO ONE IS NEW AT HOME")
+      println("Home Owners Last Time seen: \n" +
+              "  Javier: " + df.format(JaviLastTimeSeen)  + "\n" +
+              "  Miguel: " + df.format(MigueLastTimeSeen) + "\n" +
+              "  David: "  + df.format(DavidLastTimeSeen))
     }
   }
 
@@ -270,7 +293,7 @@ object ProbeRequestStreaming {
     // Subject
     val subject = "New FlatMate at Home"
     // Body
-    val body = person_who_has_arrived + " hast arrived at " + currentTime
+    val body = person_who_has_arrived + " has arrived at " + currentTime
     // Nothing to attach
     val lFiles = new util.ArrayList[String]
 

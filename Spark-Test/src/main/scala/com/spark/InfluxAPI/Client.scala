@@ -13,7 +13,7 @@ import scala.Some
 import java.net.URLEncoder
 
 
-class Client(host: String = "FILL_IT", var username: String = "FILL_IT", var password: String = "FILL_IT", var database: String = "", schema: String = "http") {
+class Client(host: String = "52.18.70.121:8086", var username: String = "root", var password: String = "root", var database: String = "", schema: String = "http") {
   implicit val formats = Serialization.formats(NoTypeHints)
   private val httpClient = new AsyncHttpClient()
 

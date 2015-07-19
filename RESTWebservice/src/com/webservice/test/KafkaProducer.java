@@ -1,16 +1,16 @@
 package com.webservice.test;
 
+import java.util.List;
 import java.util.Properties;
 
 import kafka.producer.KeyedMessage;
 import kafka.producer.ProducerConfig;
 
-public class KafkaProducer implements Runnable {
+public class KafkaProducer {
     private final kafka.javaapi.producer.Producer<Integer, String> producer;
     private final Properties props = new Properties();
-    private final String message;
     
-    public KafkaProducer(String message)
+    public KafkaProducer()
     {
       props.put("zookeeper.connect", KafkaProperties.zkConnect);
       props.put("metadata.broker.list", KafkaProperties.kafkaServerURL+":"+KafkaProperties.kafkaServerPort);
@@ -19,13 +19,14 @@ public class KafkaProducer implements Runnable {
       // Use random partitioner. Don't need the key type. Just set it to Integer.
       // The message is of type String.
       producer = new kafka.javaapi.producer.Producer<Integer, String>(new ProducerConfig(props));
-      this.message = message;
     }
     
-    @Override
-    public void run() {
-      producer.send(new KeyedMessage<Integer,String>(KafkaProperties.topic,message));
-      System.out.println(message);
+    public void sendMessages(List<String> lines) {
+      for(int i = 0; i < lines.size(); i++){
+        producer.send(new KeyedMessage<Integer,String>(KafkaProperties.topic, lines.get(i)));
+        System.out.println(lines.get(i));
+      }
+      props.clear();
       producer.close();
     }
   }
