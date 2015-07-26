@@ -32,4 +32,4 @@ Feel free to contact me at: javier.abascal@hotmail.com
 
 ## Biography ##
 
-Look the biography in the final memory "Javier Abascal Carrasco PFP" (the current version is still in Spanish, I will try to translate it as soon as possible)
+Look the biography section in the final memory "Javier Abascal Carrasco PFP.pdf" (the current version is still in Spanish, I will try to translate it as soon as possible)
