@@ -41,6 +41,7 @@ public class WriteToKafka implements Runnable {
         }
       }
       br.close();
+      gzip.close();
       
     } catch (IOException e1) {
       System.out.println("ERROR READING GZIP FILE");
