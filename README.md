@@ -18,6 +18,10 @@ The technologies used are
 
 ## Some important notes ##
 
+#### Data Source & Scripts in Raspberry pi 2 ####
+
+Look at the repository https://github.com/JavierAbascal/MasterBigData_macCounter
+
 #### Kafka ####
 
 If you run your Kafka server in a Amazon EC2 instance it is important to set in the `config/server.properties` file the next parameter `advertised.host.name=52.16.238.20 // EC2 IP Address`. Otherwise, you won't be able to connect to your Kafka broker
